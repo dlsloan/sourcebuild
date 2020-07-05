@@ -16,11 +16,14 @@
 
 #include "SourceProject.h"
 
+#include "FileSystem/Path.h"
+
 #include <iostream>
 
 #include "parsing_helpers.h"
 
 using namespace std;
+using namespace FileSystem;
 
 SourceProject::SourceProject(std::string fileMain) :
   fileMain_(fileMain)
@@ -61,18 +64,23 @@ SourceProject::SourceProject(std::string fileMain) :
 void SourceProject::clean()
 {
   string targetFile = trimExtension(fileMain_);
-  if (fileExists(targetFile))
-    system(("rm " + targetFile).c_str());
+  Path targetPath(targetFile.c_str());
+  if (targetPath.fileExists())
+    targetPath.remove();
   for (auto itt = sources_.begin(); itt != sources_.end(); ++itt)
   {
-    if (fileExists(itt->second->getObjFile()))
-      system(("rm " + itt->second->getObjFile()).c_str());
+    targetPath = Path(itt->second->getObjFile().c_str());
+    if (targetPath.fileExists())
+      targetPath.remove();
   }
 }
 
-void SourceProject::build(string gccArgs)
+void SourceProject::build(string buildArgs)
 {
   string targetFile = trimExtension(fileMain_);
+#ifdef _MSC_VER
+  targetFile += ".exe";
+#endif
   string objs = "";
   bool build = false;
   time_t targTime;
@@ -80,7 +88,7 @@ void SourceProject::build(string gccArgs)
 
   for (auto itt = sources_.begin(); itt != sources_.end(); ++itt)
   {
-    buildObj(itt->second.get(), gccArgs);
+    buildObj(itt->second.get(), buildArgs);
     time_t objTime;
     itt->second->getObjTime(objTime);
     if (difftime(objTime, targTime) > 0) build = true;
@@ -92,7 +100,11 @@ void SourceProject::build(string gccArgs)
   if (build)
   {
     cout << "building: " << targetFile << endl;
-    int rv = system(("g++ " + gccArgs + " -o \"" + targetFile + "\" " + objs).c_str());
+#ifdef _MSC_VER
+    int rv = system(("cl " + buildArgs + " " + objs + " /Fe\"" + targetFile + "\"").c_str());
+#else
+    int rv = system(("g++ " + buildArgs + " -o \"" + targetFile + "\" " + objs).c_str());
+#endif
     if (rv != 0)
     {
       cout << "build failed" << endl;
@@ -101,7 +113,7 @@ void SourceProject::build(string gccArgs)
   }
 }
 
-void SourceProject::buildObj(Source* src, string gccArgs)
+void SourceProject::buildObj(Source* src, string buildArgs)
 {
   bool build = false;
   time_t objTime;
@@ -124,8 +136,13 @@ void SourceProject::buildObj(Source* src, string gccArgs)
   if (build)
   {
     cout << "building: " << src->getObjFile() << endl;
-    system(("mkdir -p " + src->getObjPath()).c_str());
-    int rv = system(("g++ " + gccArgs + " -c \"" + src->getSrcFile() + "\" -o \"" + src->getObjFile() + "\" -I\"./\" -I\"./libs/\"").c_str());
+    Path objDir(src->getObjPath().c_str());
+    objDir.createDir();
+#ifdef _MSC_VER
+    int rv = system(("cl " + buildArgs + " /c \"" + src->getSrcFile() + "\" /Fo\"" + src->getObjFile() + "\" /I \"./\" /I \"./libs/\"").c_str());
+#else
+    int rv = system(("g++ " + buildArgs + " -c \"" + src->getSrcFile() + "\" -o \"" + src->getObjFile() + "\" -I\"./\" -I\"./libs/\"").c_str());
+#endif
     if (rv != 0)
     {
       cout << "build failed" << endl;

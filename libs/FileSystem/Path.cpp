@@ -202,3 +202,26 @@ bool Path::fileExists()
   return S_ISREG(path_stat.st_mode);
 #endif
 }
+
+void Path::remove()
+{
+#ifdef _MSC_VER
+  if (fileExists())
+    DeleteFileA(toString().c_str());
+  else if (dirExists())
+    RemoveDirectoryA(toString().c_str());
+#else
+  remove(toString().c_str());
+#endif
+}
+
+void Path::createDir()
+{
+#ifdef _MSC_VER
+  if (!dirExists())
+    CreateDirectoryA(toString().c_str(), nullptr);
+#else
+  if (!dirExists())
+    mkdir(toString().c_str(), 0700);
+#endif
+}

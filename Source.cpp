@@ -88,7 +88,12 @@ Source::Source(string filename) :
   else
   {
     objPath_ = filename.substr(0, index + 1) + ".obj/";
-    objFile_ = ".obj/" + filename.substr(index + 1, filename.length() - index - 1) + ".obj";
+    objFile_ = ".obj/" + filename.substr(index + 1, filename.length() - index - 1) +
+#ifdef _MSC_VER
+    ".obj";
+#else
+    ".o";
+#endif
   }
 }
 

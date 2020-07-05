@@ -59,7 +59,7 @@ namespace Base
       List<T>& operator= (List<T> const& value)
       {
         setMinSize(value.count_);
-        for (off_t i = 0; i < value.count_; ++i)
+        for (size_t i = 0; i < value.count_; ++i)
           items_[i] = value.items_[i];
         count_ = value.count_;
         return *this;

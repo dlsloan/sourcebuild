@@ -48,11 +48,15 @@ int main(int argc, char** argv)
     return 0;
   }
   SourceProject project(targetSource.toString().c_str());
-  String gccArgs;
+  String buildArgs;
   if (argc > 2 && string(argv[2]) == "debug")
   {
-    gccArgs = "-g -std=c++11 -Wall";
-    project.build(std::string(gccArgs.c_str()));
+#ifdef _MSC_VER
+    buildArgs = "/EHsc /Zi /std:c++14 /W3";
+#else
+    buildArgs = "-g -std=c++14 -Wall";
+#endif
+    project.build(std::string(buildArgs.c_str()));
   }
   else if (argc > 2 && string(argv[2]) == "clean")
   {
@@ -60,8 +64,12 @@ int main(int argc, char** argv)
   }
   else
   {
-    gccArgs = "-std=c++11 -Wall";
-    project.build(std::string(gccArgs.c_str()));
+#ifdef _MSC_VER
+    buildArgs = "/EHsc /std:c++14 /W3";
+#else
+    buildArgs = "-std=c++14 -Wall";
+#endif
+    project.build(std::string(buildArgs.c_str()));
   }
   return 0;
 }

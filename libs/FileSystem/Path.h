@@ -50,7 +50,7 @@ namespace FileSystem
       bool dirExists();
       bool fileExists();
       void createDir();
-      void removeDir();
+      void remove();
 
       Base::String operator[] (const off_t index) const;
 

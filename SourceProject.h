@@ -37,7 +37,7 @@ public:
   SourceProject& operator=(const SourceProject&); 
   ~SourceProject();
 
-  void build(std::string gccArgs);
+  void build(std::string buildArgs);
   void clean();
 
 private:
@@ -49,7 +49,7 @@ private:
 
   void addDeps(std::set<std::string>* deps, std::set<std::string>* headers);
 
-  void buildObj(Source* src, std::string gccArgs);
+  void buildObj(Source* src, std::string buildArgs);
 
   bool containsHeader(std::string name);
   bool containsSource(std::string name);

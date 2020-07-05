@@ -3,3 +3,6 @@
 sourcebuild
 *.ilk
 *.pdb
+*.obj
+*.o
+*.exe
