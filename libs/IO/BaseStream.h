@@ -17,6 +17,7 @@
 #ifndef __IO_BaseStream_h
 #define __IO_BaseStream_h
 
+#include "Base/adhoc_stdint.h"
 #include <stdlib.h>
 
 namespace IO

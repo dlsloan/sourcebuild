@@ -33,7 +33,7 @@ using namespace IO;
 
 int main(int argc, char** argv)
 {
-  StandardOutput stdout;
+  StandardOutput sout;
   String targetSourceStr(argc >= 2 ? argv[1] : "");
   bool helpRqu = targetSourceStr == "-h" || targetSourceStr == "--help" || targetSourceStr == "?";
   Path targetSource(targetSourceStr);
@@ -42,9 +42,9 @@ int main(int argc, char** argv)
   {
     if (!helpRqu)
     {
-      stdout.writeLine(String("source file: ") + targetSource.toString() + " not found");
+      sout.writeLine(String("source file: ") + targetSource.toString() + " not found");
     }
-    stdout.writeLine("usage: {main_source}.cpp [(*)release|debug|clear]");
+    sout.writeLine("usage: {main_source}.cpp [(*)release|debug|clear]");
     return 0;
   }
   SourceProject project(targetSource.toString().c_str());

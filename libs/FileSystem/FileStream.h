@@ -23,6 +23,10 @@
 #include "IO/WriteStream.h"
 #include "FileSystem/Path.h"
 
+#ifdef _MSC_VER
+#include <windows.h>
+#endif
+
 namespace FileSystem
 {
   enum OpenMode {
@@ -107,7 +111,11 @@ namespace FileSystem
     // Flush file buffer and close file
     void close() override;
   private:
+#ifdef _MSC_VER
+    HANDLE handle_;
+#else
     int handle_;
+#endif
     OpenMode mode_;
     size_t length_;
   };

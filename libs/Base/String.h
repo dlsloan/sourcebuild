@@ -17,8 +17,8 @@
 #ifndef __Base_String_h
 #define __Base_String_h
 
-#include <stdint.h>
 #include "Base/List.h"
+#include "Base/adhoc_stdint.h"
 
 namespace Base {
   class String;
@@ -80,10 +80,10 @@ namespace Base {
       size_t length_;
       size_t size_;
 
-      String(char const* inner1, uint64_t len1, char const* inner2, uint64_t len2);
-      String(char const* inner1, uint64_t len1);
+      String(char const* inner1, size_t len1, char const* inner2, size_t len2);
+      String(char const* inner1, size_t len1);
 
-      bool partEq(char const* inner, char const* test, uint64_t testLen) const;
+      bool partEq(char const* inner, char const* test, size_t testLen) const;
   };
 }
 

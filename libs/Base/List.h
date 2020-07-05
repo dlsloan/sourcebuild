@@ -17,7 +17,7 @@
 #ifndef __Base_List_h
 #define __Base_List_h
 
-#include <stdint.h>
+#include "Base/adhoc_stdint.h"
 #include <algorithm>
 #include <assert.h>
 
@@ -183,7 +183,7 @@ namespace Base
         }
         else if (size_ < size)
         {
-          size_ = std::max(size, size_ * 2);
+          size_ = std::max<size_t>(size, size_ * 2);
           T* newItems = new T[size_];
           for (off_t i = 0; i < (ssize_t)count_; ++i)
             newItems[i] = items_[i];

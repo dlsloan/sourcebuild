@@ -318,7 +318,7 @@ String& String::operator+= (String const& value)
 {
   if (size_ < length_ + value.length_ + 1)
   {
-    size_ = std::max(size_ * 2, length_ + value.length_ + 1);
+    size_ = std::max<size_t>(size_ * 2, length_ + value.length_ + 1);
     char* newChars = new char[size_];
     if (chars_ != nullptr)
     {
@@ -339,7 +339,7 @@ String& String::operator+= (char const* value)
   ssize_t addLength = strlen(value);
   if (size_ < length_ + addLength + 1)
   {
-    size_ = std::max(size_ * 2, length_ + addLength + 1);
+    size_ = std::max<size_t>(size_ * 2, length_ + addLength + 1);
     char* newChars = new char[size_];
     if (chars_ != nullptr)
     {
@@ -358,7 +358,7 @@ String& String::operator+= (char value)
 {
   if (size_ < length_ + 2)
   {
-    size_ = std::max(size_ * 2, length_ + 2);
+    size_ = std::max<size_t>(size_ * 2, length_ + 2);
     char* newChars = new char[size_];
     if (chars_ != nullptr)
     {

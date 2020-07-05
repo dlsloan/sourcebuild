@@ -2,6 +2,15 @@
 
 set -e
 
+if [[ -z "$1" ]]
+then
+  echo "Building"
+  CLEAN="0"
+else
+  echo "Cleaning"
+  CLEAN="1"
+fi
+
 ARGS="-g -std=c++11 -Wall"
 
 GC="g++ $ARGS -I libs"
@@ -13,9 +22,14 @@ function make_o {
   else
     OBJS="$OBJS $1/.obj/$2.o"
   fi
-  mkdir -p $1/.obj
   echo "$1/$2.cpp"
-  $GC -o $1/.obj/$2.o -c $1/$2.cpp
+  if [[ $CLEAN = "0" ]]
+  then
+    mkdir -p $1/.obj  
+    $GC -o $1/.obj/$2.o -c $1/$2.cpp
+  else
+    rm -rf $1/.obj
+  fi
 }
 
 make_o libs/Base Char
@@ -37,7 +51,12 @@ make_o . Source
 make_o . SourceHeader
 make_o . SourceProject
 
-$GC -o sourcebuild $OBJS SourceBuild.cpp
+if [[ "$CLEAN" = "0" ]]
+then
+  $GC -o sourcebuild $OBJS SourceBuild.cpp
+else
+  rm -f sourcebuild
+fi
 
 # Copyright (C) 2020 David Sloan
 #

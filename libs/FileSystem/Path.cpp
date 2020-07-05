@@ -18,8 +18,8 @@
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
+#include "Base/adhoc_unistd.h"
 #include "Base/Char.h"
 
 using namespace Base;
@@ -72,6 +72,16 @@ Path::Path(Path const& path) :
 Base::String Path::toString() const
 {
   Base::String ret;
+#ifdef _MSC_VER
+  if (isAbsolute())
+    ret += parts_[0] + ":\\";
+  for (size_t i = isAbsolute() ? 1 : 0; i < parts_.getCount(); ++i)
+  {
+    if (i != (isAbsolute() ? 1 : 0))
+      ret += "\\";
+    ret += parts_[i];
+  }
+#else
   if (isAbsolute())
     ret += "/";
   for (size_t i = 0; i < parts_.getCount(); ++i)
@@ -80,6 +90,7 @@ Base::String Path::toString() const
       ret += "/";
     ret += parts_[i];
   }
+#endif
   return ret;
 }
 
@@ -162,16 +173,32 @@ Base::String Path::operator[] (const off_t index) const
 
 bool Path::dirExists()
 {
-    struct stat path_stat;
-    if (stat(toString().c_str(), &path_stat) != 0)
-      return false;
-    return S_ISDIR(path_stat.st_mode);
+#ifdef _MSC_VER
+  DWORD ret;
+  ret = GetFileAttributesA(toString().c_str());
+  if (ret == INVALID_FILE_ATTRIBUTES)
+    return false;
+  return (FILE_ATTRIBUTE_DIRECTORY & ret) == FILE_ATTRIBUTE_DIRECTORY;
+#else
+  struct stat path_stat;
+  if (stat(toString().c_str(), &path_stat) != 0)
+    return false;
+  return S_ISDIR(path_stat.st_mode);
+#endif
 }
 
 bool Path::fileExists()
 {
-    struct stat path_stat;
-    if (stat(toString().c_str(), &path_stat) != 0)
-      return false;
-    return S_ISREG(path_stat.st_mode);
+#ifdef _MSC_VER
+  DWORD ret;
+  ret = GetFileAttributesA(toString().c_str());
+  if (ret == INVALID_FILE_ATTRIBUTES)
+    return false;
+  return (FILE_ATTRIBUTE_DIRECTORY & ret) != FILE_ATTRIBUTE_DIRECTORY;
+#else
+  struct stat path_stat;
+  if (stat(toString().c_str(), &path_stat) != 0)
+    return false;
+  return S_ISREG(path_stat.st_mode);
+#endif
 }

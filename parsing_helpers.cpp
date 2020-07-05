@@ -16,6 +16,8 @@
 
 #include "parsing_helpers.h"
 
+#include "Base/adhoc_stdint.h"
+
 #include <algorithm>
 #include <assert.h>
 #include <fstream>
@@ -88,7 +90,7 @@ int lastIndexOf(string const& str, char ch)
 
 int indexOf(string const& str, char ch)
 {
-    for (uint i = 0; i < str.length(); ++i) {
+    for (size_t i = 0; i < str.length(); ++i) {
       if (str.at(i) == ch) {
         return static_cast<int>(i);
       }
