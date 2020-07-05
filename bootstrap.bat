@@ -1,6 +1,21 @@
 rem Run VsDevCmd.bat before executing this file!!!
 rem example path: "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat"
 
+rem Copyright (C) 2020 David Sloan
+rem
+rem This library is free software; you can redistribute it and/or
+rem modify it under the terms of the GNU Lesser General Public
+rem License as published by the Free Software Foundation; either
+rem version 2.1 of the License, or (at your option) any later version.
+rem
+rem This library is distributed in the hope that it will be useful,
+rem but WITHOUT ANY WARRANTY; without even the implied warranty of
+rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+rem Lesser General Public License for more details.
+rem
+rem You should have received a copy of the GNU Lesser General Public
+rem License along with this library; if not, see <http://www.gnu.org/licenses/>.
+
 @echo off
 
 set @CL_EXE=cl
