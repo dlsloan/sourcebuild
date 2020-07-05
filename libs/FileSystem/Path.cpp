@@ -16,6 +16,7 @@
 
 #include "FileSystem/Path.h"
 #include <assert.h>
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -211,7 +212,7 @@ void Path::remove()
   else if (dirExists())
     RemoveDirectoryA(toString().c_str());
 #else
-  remove(toString().c_str());
+  ::remove(toString().c_str());
 #endif
 }
 

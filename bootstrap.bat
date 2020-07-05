@@ -1,5 +1,6 @@
 rem Run VsDevCmd.bat before executing this file!!!
 rem example path: "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat"
+@echo off
 
 rem Copyright (C) 2020 David Sloan
 rem
@@ -15,8 +16,6 @@ rem Lesser General Public License for more details.
 rem
 rem You should have received a copy of the GNU Lesser General Public
 rem License along with this library; if not, see <http://www.gnu.org/licenses/>.
-
-@echo off
 
 set @CL_EXE=cl
 
