@@ -20,10 +20,12 @@
 #include <iostream>
 
 #include "base/string.h"
+#include "FileSystem/Path.h"
 
 #include "parsing_helpers.h"
 
 using namespace std;
+using namespace FileSystem;
 
 static void splitArgs(vector<string>& args, string line)
 {
@@ -76,6 +78,26 @@ Source::Source(string filename) :
         string localDir = args[0];
         string gitRepo = args[1];
         string branch = args[2];
+	Path gitPath(("libs/" + localDir).c_str());
+	//TODO: This needs to be multi-pass for library deps
+	int rv;
+	if (!gitPath.dirExists()) {
+          rv = system(("git clone " + gitRepo + " " + gitPath.toString().c_str()).c_str());
+	  if (rv != 0) {
+	    cout << "build failed" << endl;
+            exit(1);
+	  }
+	  rv = system((std::string("git -C ") + gitPath.toString().c_str() + " checkout " + branch).c_str());
+	  if (rv != 0) {
+	    cout << "build failed" << endl;
+            exit(1);
+	  }
+	}
+	rv = system((std::string("git -C ") + gitPath.toString().c_str() + " pull").c_str());
+	if (rv != 0) {
+	  cout << "build failed" << endl;
+	  exit(1);
+	}
       }
     }
   }
@@ -83,12 +105,17 @@ Source::Source(string filename) :
   if (index == -1)
   {
     objPath_ = ".obj/";
-    objFile_ = ".obj/" + filename + ".obj";
+    objFile_ = objPath_ + filename + 
+#ifdef _MSC_VER
+      ".obj";
+#else
+      ".o";
+#endif
   }
   else
   {
     objPath_ = filename.substr(0, index + 1) + ".obj/";
-    objFile_ = ".obj/" + filename.substr(index + 1, filename.length() - index - 1) +
+    objFile_ = objPath_ + filename.substr(index + 1, filename.length() - index - 1) +
 #ifdef _MSC_VER
     ".obj";
 #else

@@ -64,6 +64,9 @@ SourceProject::SourceProject(std::string fileMain) :
 void SourceProject::clean()
 {
   string targetFile = trimExtension(fileMain_);
+#ifdef _MSC_VER
+  targetFile += ".exe";
+#endif
   Path targetPath(targetFile.c_str());
   if (targetPath.fileExists())
     targetPath.remove();
