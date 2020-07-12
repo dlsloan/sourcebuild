@@ -51,6 +51,15 @@ namespace Base {
       String replace(char const* find, char const* replace) const;
       String replace(String const& find, String const& replace) const;
 
+      String ltrim();
+      String rtrim();
+      String trim();
+
+      off_t indexOf(const char* str);
+      off_t indexOfR(const char* str);
+      off_t indexOf(String const& str) { return indexOf(str.c_str()); }
+      off_t indexOfR(String const& str) { return indexOfR(str.c_str()); }
+
       List<String> split(char const* separator) const;
       List<String> split(String const& separator) const;
 
@@ -64,6 +73,8 @@ namespace Base {
       char const* c_str() const;
       void copyTo(char* charBuffer) const;
       String toString() const override { return *this; }
+
+      int getHash() const;
 
       String operator+(String const& value) const;
       String operator+(char const* value) const;

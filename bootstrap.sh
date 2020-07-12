@@ -49,6 +49,7 @@ function make_o {
 
 make_o libs/Base Char
 make_o libs/Base Exception
+make_o libs/Base Hash
 make_o libs/Base String
 
 make_o libs/FileSystem FileStream

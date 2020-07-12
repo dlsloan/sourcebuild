@@ -17,12 +17,10 @@
 #include <string>
 #include <time.h>
 
-std::string ltrim(std::string s);
-std::string rtrim(std::string s);
-std::string trim(std::string s);
-bool startsWith(std::string const& str, std::string const& start);
-bool isQuoteInclude(std::string s);
-std::string getIncludeFile(std::string s);
+#include "Base/String.h"
+
+bool isQuoteInclude(Base::String s);
+Base::String getIncludeFile(Base::String s);
 bool fileExists(const std::string& name);
 int lastIndexOf(std::string const& str, char ch);
 int indexOf(std::string const& str, char ch);

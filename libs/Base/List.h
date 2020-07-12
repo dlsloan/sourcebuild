@@ -33,7 +33,7 @@ namespace Base
       {
         assert(items != nullptr);
         items_ = new T[size_];
-        for (off_t i = 0; i < count; ++i)
+        for (off_t i = 0; i < (ssize_t)count; ++i)
           items_[i] = items[i];
       }
 

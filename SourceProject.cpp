@@ -16,6 +16,7 @@
 
 #include "SourceProject.h"
 
+#include "Base/String.h"
 #include "FileSystem/Path.h"
 
 #include <iostream>
@@ -23,6 +24,7 @@
 #include "parsing_helpers.h"
 
 using namespace std;
+using namespace Base;
 using namespace FileSystem;
 
 SourceProject::SourceProject(std::string fileMain) :
@@ -30,7 +32,7 @@ SourceProject::SourceProject(std::string fileMain) :
 {
   queue<SourceHeader*> h2Parse;
   queue<Source*> c2Parse;
-  Source* mainSource = new Source(fileMain);
+  Source* mainSource = new Source(String(fileMain.c_str()));
   c2Parse.push(mainSource);
   sources_[fileMain] = unique_ptr<Source>(mainSource);
   while(!c2Parse.empty() || !h2Parse.empty())
@@ -39,9 +41,10 @@ SourceProject::SourceProject(std::string fileMain) :
     {
       auto src = c2Parse.front();
       c2Parse.pop();
-      for (auto itt = src->headers_.begin(); itt != src->headers_.end(); ++itt)
+      auto keys = src->headers_.keys();
+      for (off_t i = 0; i < (ssize_t)keys.count(); i++)
       {
-        tryAddHeader(*itt, h2Parse, c2Parse);
+        tryAddHeader(std::string(src->headers_[keys[i]].toString().c_str()), h2Parse, c2Parse);
       }
     }
     while(!h2Parse.empty())
@@ -57,7 +60,7 @@ SourceProject::SourceProject(std::string fileMain) :
   for (auto itt = sources_.begin(); itt != sources_.end(); ++itt)
   {
     //std::set<std::string>* deps = &itt->second->dependancies_;
-    addDeps(&itt->second->dependancies_, &itt->second->headers_);
+    addDeps(itt->second->dependancies_, itt->second->headers_);
   }
 }
 
@@ -72,7 +75,7 @@ void SourceProject::clean()
     targetPath.remove();
   for (auto itt = sources_.begin(); itt != sources_.end(); ++itt)
   {
-    targetPath = Path(itt->second->getObjFile().c_str());
+    targetPath = Path(itt->second->getObjFile().toString().c_str());
     if (targetPath.fileExists())
       targetPath.remove();
   }
@@ -97,7 +100,7 @@ void SourceProject::build(string buildArgs)
     if (difftime(objTime, targTime) > 0) build = true;
     if (itt != sources_.begin())
       objs += " ";
-    objs += "\"" + itt->second->getObjFile() + "\"";
+    objs += "\"" + string(itt->second->getObjFile().toString().c_str()) + "\"";
   }
 
   if (build)
@@ -129,22 +132,23 @@ void SourceProject::buildObj(Source* src, string buildArgs)
     if (difftime(srcTime, objTime) > 0) build = true;
   }
 
-  for (auto itt = src->headers_.begin(); itt != src->headers_.end() && !build; ++itt)
+  auto keys = src->headers_.keys();
+  for (int i = 0; i < (ssize_t)keys.count() && !build; i++)
   {
     time_t hdrTime;
-    headers_[*itt]->getHTime(hdrTime);
+    headers_[keys[i].toString().c_str()]->getHTime(hdrTime);
     if (difftime(hdrTime, objTime) > 0) build = true;
   }
 
   if (build)
   {
-    cout << "building: " << src->getObjFile() << endl;
-    Path objDir(src->getObjPath().c_str());
+    cout << "building: " << src->getObjFile().toString().c_str() << endl;
+    Path objDir = src->getObjPath();
     objDir.createDir();
 #ifdef _MSC_VER
-    int rv = system(("cl " + buildArgs + " /c \"" + src->getSrcFile() + "\" /Fo\"" + src->getObjFile() + "\" /I \"./\" /I \"./libs/\"").c_str());
+    int rv = system(("cl " + buildArgs + " /c \"" + src->getSrcFile().toString().c_str() + "\" /Fo\"" + src->getObjFile().toString().c_str() + "\" /I \"./\" /I \"./libs/\"").c_str());
 #else
-    int rv = system(("g++ " + buildArgs + " -c \"" + src->getSrcFile() + "\" -o \"" + src->getObjFile() + "\" -I\"./\" -I\"./libs/\"").c_str());
+    int rv = system(("g++ " + buildArgs + " -c \"" + src->getSrcFile().toString().c_str() + "\" -o \"" + src->getObjFile().toString().c_str() + "\" -I\"./\" -I\"./libs/\"").c_str());
 #endif
     if (rv != 0)
     {
@@ -159,13 +163,23 @@ SourceProject::~SourceProject()
 
 }
 
-void SourceProject::addDeps(std::set<std::string>* deps, std::set<std::string>* headers)
+Dictionary<String, Path> base_header_list(std::set<std::string> const& headers)
 {
-  for (auto itt = headers->begin(); itt != headers->end(); ++itt)
+  Dictionary<String, Path> hdrs;
+  for (auto itt = headers.begin(); itt != headers.end(); ++itt) {
+    hdrs.add(String(itt->c_str()), Path(itt->c_str()));
+  }
+  return hdrs;
+}
+
+void SourceProject::addDeps(Base::Dictionary<Base::String, FileSystem::Path>& deps, Base::Dictionary<Base::String, FileSystem::Path> const& headers)
+{
+  auto keys = headers.keys();
+  for (off_t i = 0; i < (ssize_t)keys.count(); i++)
   {
-    if (deps->find(*itt) != deps->end()) continue;
-    deps->insert(*itt);
-    addDeps(deps, &headers_[*itt]->headers_);
+    if (deps.containsKey(keys[i])) continue;
+    deps.add(keys[i], headers[keys[i]]);
+    addDeps(deps, base_header_list(headers_[keys[i].c_str()]->headers_));
   }
 }
 
@@ -180,7 +194,7 @@ bool SourceProject::tryAddHeader(string name, queue<SourceHeader*>& h2Parse, que
     if (!fileExists(sourceName)) sourceName = "libs/" + sourceName;
     if (fileExists(sourceName) && !this->containsSource(sourceName))
     {
-      Source* source = new Source(sourceName);
+      Source* source = new Source(String(sourceName.c_str()));
       c2Parse.push(source);
       sources_[sourceName] = unique_ptr<Source>(source);
     }

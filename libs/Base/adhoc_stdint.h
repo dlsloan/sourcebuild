@@ -20,6 +20,7 @@
 #include <stdint.h>
 
 #ifdef _MSC_VER
+        #define NOMINMAX
 	#include <windows.h>
 	#include <algorithm>
 	#define ssize_t off_t

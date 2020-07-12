@@ -24,53 +24,26 @@
 #include <sys/stat.h>
 
 using namespace std;
+using namespace Base;
 
-string ltrim(string s) {
-    s.erase(s.begin(), find_if(s.begin(), s.end(), [](int ch) {
-        return !isspace(ch);
-    }));
-    return s;
-}
-
-string rtrim(string s) {
-    s.erase(find_if(s.rbegin(), s.rend(), [](int ch) {
-        return !isspace(ch);
-    }).base(), s.end());
-    return s;
-}
-
-string trim(string s) {
-    s = ltrim(s);
-    s = rtrim(s);
-    return s;
-}
-
-bool startsWith(string const& str, string const& start)
+bool isQuoteInclude(String s)
 {
-  if (str.length() < start.length())
+  s = s.trim();
+  if (!s.startsWith("#include"))
     return false;
-  else
-    return str.substr(0, start.length()) == start;
-}
-
-bool isQuoteInclude(string s)
-{
-  s = trim(s);
-  if (!startsWith(s, "#include"))
-    return false;
-  s = trim(s.substr(8, s.length() - 8));
+  s = s.substring(8, s.length() - 8).trim();
   if (s.length() < 2)
     return false;
-  return s.at(0) == '\"' && s.at(s.length() - 1) == '\"';
+  return s[0] == '\"' && s[-1] == '\"';
 }
 
-string getIncludeFile(string s)
+String getIncludeFile(String s)
 {
-  s = trim(s);
-  assert(startsWith(s, "#include"));
-  s = trim(s.substr(8, s.length() - 8));
+  s = s.trim();
+  assert(s.startsWith("#include"));
+  s = s.substring(8, s.length() - 8).trim();
   assert(s.length() > 2);
-  return s.substr(1, s.length() - 2);
+  return s.substring(1, s.length() - 2);
 }
 
 bool fileExists(const string& name) {

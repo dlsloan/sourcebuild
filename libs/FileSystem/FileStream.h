@@ -24,6 +24,7 @@
 #include "FileSystem/Path.h"
 
 #ifdef _MSC_VER
+#define NOMINMAX
 #include <windows.h>
 #endif
 

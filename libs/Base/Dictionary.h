@@ -18,24 +18,25 @@
 #define __Base_Dictionary_h
 
 #include "Base/Hash.h"
+#include "Base/List.h"
 #include <assert.h>
 
 namespace Base {
   template <typename T_Key, typename T_Value>
   class Dictionary {
   public:
-    Dictionary(size = 4) :
+    Dictionary(size_t size = 4) :
       count_(0),
       tableSize_(size),
       table_(nullptr)
     {
-      assert(tableSize > 0);
+      assert(tableSize_ > 0);
       table_ = new Node*[tableSize_];
       for (uint64_t i = 0; i < tableSize_; ++i)
         table_[i] = nullptr;
     }
 
-    void add(T_Key key, T_Value value)
+    void add(T_Key const& key, T_Value const& value)
     {
       if (count_ == tableSize_)
       {
@@ -43,7 +44,7 @@ namespace Base {
       }
 
       int hashValue = getHash<T_Key>(key);
-      off_t index = static_cast<off_t>(hashValue) % tableCount_;
+      off_t index = static_cast<off_t>(hashValue) % tableSize_;
       Node* node = table_[index];
       while(node != nullptr)
       {
@@ -59,10 +60,10 @@ namespace Base {
       count_ += 1;
     }
 
-    void remove(T_Key key)
+    void remove(T_Key const& key)
     {
       int hashValue = getHash<T_Key>(key);
-      off_t index = static_cast<off_t>(hashValue) % tableCount_;
+      off_t index = static_cast<off_t>(hashValue) % tableSize_;
       Node* node = table_[index];
       Node* prev = nullptr;
       while(node != nullptr)
@@ -91,24 +92,41 @@ namespace Base {
       assert(false);
     }
 
-    bool containsKey(T_Key key)
-    {
+    bool containsKey(T_Key const& key) const {
       int hashValue = getHash<T_Key>(key);
-      off_t index = static_cast<off_t>(hashValue) % tableCount_;
+      off_t index = static_cast<off_t>(hashValue) % tableSize_;
       Node* node = table_[index];
       while(node != nullptr)
       {
         if(node->key == key)
           return true;
-          node = node->next;
+        node = node->next;
       }
       return false;
     }
 
-    T_Value& operator[] (off_t index) const
+    size_t count() const {
+      return count_;
+    }
+
+    Base::List<T_Key> keys() const {
+      Base::List<T_Key> keys_ret(count());
+      for (off_t i = 0; i < (ssize_t)tableSize_; i++) {
+        if (table_[i] != nullptr) {
+          Node* node = table_[i];
+	  while (node != nullptr) {
+            keys_ret.add(node->key);
+            node = node->next;
+	  }
+	}
+      }
+      return keys_ret;
+    }
+
+    T_Value& operator[] (T_Key const& key) const
     {
       int hashValue = getHash<T_Key>(key);
-      off_t index = static_cast<off_t>(hashValue) % tableCount_;
+      off_t index = static_cast<off_t>(hashValue) % tableSize_;
       Node* node = table_[index];
       while(node != nullptr)
       {
@@ -122,7 +140,7 @@ namespace Base {
 
     ~Dictionary()
     {
-      for (off_t i = 0; i < tableSize_; ++i)
+      for (off_t i = 0; i < (ssize_t)tableSize_; ++i)
       {
         Node* node = table_[i];
         while(node != nullptr)
@@ -134,13 +152,12 @@ namespace Base {
       }
     }
 
-
   private:
     struct Node {
       Node* next;
       T_Key key;
       T_Value value;
-    }
+    };
 
     size_t count_;
     size_t tableSize_;
@@ -152,10 +169,10 @@ namespace Base {
         return;
       
       Node** newTable = new Node*[size];
-      for (off_t i = 0; i < size; ++i)
+      for (off_t i = 0; i < (ssize_t)size; ++i)
         newTable[i] = nullptr;
 
-      for (off_t i = 0; i < tableSize_; ++i)
+      for (off_t i = 0; i < (ssize_t)tableSize_; ++i)
       {
         Node* node = table_[i];
         while(node != nullptr)

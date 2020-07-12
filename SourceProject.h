@@ -17,6 +17,9 @@
 #ifndef __SourceProject_h
 #define __SourceProject_h
 
+#include "Base/Dictionary.h"
+#include "FileSystem/Path.h"
+
 #include <map>
 #include <set>
 #include <string>
@@ -47,7 +50,7 @@ private:
 
   bool tryAddHeader(std::string name, std::queue<SourceHeader*>& h2Parse, std::queue<Source*>& c2Parse);
 
-  void addDeps(std::set<std::string>* deps, std::set<std::string>* headers);
+  void addDeps(Base::Dictionary<Base::String, FileSystem::Path>& deps, Base::Dictionary<Base::String, FileSystem::Path> const& headers);
 
   void buildObj(Source* src, std::string buildArgs);
 

@@ -19,62 +19,61 @@
 #include <fstream>
 #include <iostream>
 
-#include "Base/String.h"
-#include "FileSystem/Path.h"
-
 #include "parsing_helpers.h"
 
 using namespace std;
 using namespace FileSystem;
 using namespace Base;
 
-static void splitArgs(vector<string>& args, string line)
+static void splitArgs(List<String>& args, String line)
 {
-  line = trim(line);
+  line = line.trim();
   while(line.length() > 0)
   {
-    int index = indexOf(line, ' ');
-    string val;
+    int index = line.indexOf(" ");
+    String val;
     if (index == -1) val = line;
-    else val = line.substr(0, index);
-    args.push_back(val);
-    line = trim(line.substr(val.length()));
+    else val = line.substring(0, index);
+    args.add(val);
+    line = line.substring(val.length()).trim();
   }
 }
 
-Source::Source(string filename) :
-  filename_(filename),
+Source::Source(Path const& filename_arg) :
+  filename_(filename_arg),
   objPath_(""),
   objFile_("")
 {
-  cout << "scanning: " << filename << endl;
-  if (!fileExists(filename))
-    filename = "libs/" + filename;
-  if (!fileExists(filename))
+  Path filename = filename_arg;
+  cout << "scanning: " << filename.toString().c_str() << endl;
+  if (!filename.fileExists())
+    filename = "libs" / filename;
+  if (!filename.fileExists())
   {
-    cout << "ERROR: could not find file \"" << filename << endl;
-    assert(fileExists(filename));
+    cout << "ERROR: could not find file \"" << filename.toString().c_str() << endl;
+    assert(filename.fileExists());
   }
-  ifstream stream(filename, ifstream::in);
+  ifstream stream(filename.toString().c_str(), ifstream::in);
   while (!stream.eof())
   {
-    string line;
-    getline(stream, line);
-    line = trim(line);
+    string line_str;
+    getline(stream, line_str);
+    String line(line_str.c_str());
+    line = line.trim();
     if (isQuoteInclude(line))
     {
-      string file = getIncludeFile(line);
-      if (headers_.find(file) != headers_.end())
+      String file = getIncludeFile(line);
+      if (headers_.containsKey(file))
         continue;
-      headers_.insert(file);
+      headers_.add(file, Path(file));
     }
-    else if (startsWith(line, "#pragma"))
+    else if (line.startsWith("#pragma"))
     {
-      line = trim(line.substr(7, line.length() - 7));
-      if (startsWith(line, "git"))
+      line = line.substring(7, line.length() - 7).trim();
+      if (line.startsWith("git"))
       {
-        line = trim(line.substr(3, line.length() - 3));
-        vector<string> args;
+        line = line.substring(3, line.length() - 3).trim();
+        List<String> args;
         splitArgs(args, line);
         String gitRepo(args[0].c_str());
 	String branch = "master";
@@ -115,25 +114,24 @@ Source::Source(string filename) :
       }
     }
   }
-  int index = lastIndexOf(filename, '/');
-  if (index == -1)
+  if (filename.count() == 1)
   {
-    objPath_ = ".obj/";
-    objFile_ = objPath_ + filename + 
+    objPath_ = Path(".obj");
+    objFile_ = objPath_ / (filename + 
 #ifdef _MSC_VER
-      ".obj";
+      ".obj");
 #else
-      ".o";
+      ".o");
 #endif
   }
   else
   {
-    objPath_ = filename.substr(0, index + 1) + ".obj/";
-    objFile_ = objPath_ + filename.substr(index + 1, filename.length() - index - 1) +
+    objPath_ = filename.subpath(0, filename.count() - 1) / ".obj/";
+    objFile_ = objPath_ / (filename[-1] +
 #ifdef _MSC_VER
-    ".obj";
+    ".obj");
 #else
-    ".o";
+    ".o");
 #endif
   }
 }
@@ -141,7 +139,7 @@ Source::Source(string filename) :
 bool Source::getObjTime(time_t& time)
 {
     struct stat f_stat;
-    if (stat(getObjFile().c_str(), &f_stat) != 0)
+    if (stat(getObjFile().toString().c_str(), &f_stat) != 0)
       return false;
     time = f_stat.st_mtime;
     return true;
@@ -150,7 +148,7 @@ bool Source::getObjTime(time_t& time)
 bool Source::getCppTime(time_t& time)
 {
     struct stat f_stat;
-    if (stat(filename_.c_str(), &f_stat) != 0)
+    if (stat(filename_.toString().c_str(), &f_stat) != 0)
       return false;
     time = f_stat.st_mtime;
     return true;

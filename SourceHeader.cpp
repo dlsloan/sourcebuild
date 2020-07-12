@@ -16,6 +16,8 @@
 
 #include "SourceHeader.h"
 
+#include "Base/String.h"
+
 #include <assert.h>
 #include <fstream>
 #include <iostream>
@@ -23,6 +25,7 @@
 #include "parsing_helpers.h"
 
 using namespace std;
+using namespace Base;
 
 SourceHeader::SourceHeader(string filename) :
   filename_(filename)
@@ -40,9 +43,9 @@ SourceHeader::SourceHeader(string filename) :
   {
     string line;
     getline(stream, line);
-    if (!isQuoteInclude(line))
+    if (!isQuoteInclude(String(line.c_str())))
       continue;
-    string file = getIncludeFile(line);
+    string file = getIncludeFile(String(line.c_str())).toString().c_str();
     if (headers_.find(file) != headers_.end())
       continue;
     headers_.insert(file);

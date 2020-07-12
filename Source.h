@@ -21,6 +21,9 @@
 #include <set>
 #include <sys/stat.h>
 
+#include "Base/String.h"
+#include "FileSystem/Path.h"
+#include "Base/Dictionary.h"
 #include "SourceProject.h"
 #include "SourceHeader.h"
 
@@ -29,29 +32,29 @@ class SourceHeader;
 
 class Source {
 public:
-  Source(const Source&);  
+  Source(const Source&);
   Source& operator=(const Source&); 
 
   bool getObjTime(time_t& time);
   bool getCppTime(time_t& time);
 
-  std::string getObjFile() { return objFile_; }
+  FileSystem::Path getObjFile() { return objFile_; }
   
-  std::string getObjPath() { return objPath_; }
+  FileSystem::Path getObjPath() { return objPath_; }
 
-  std::string getSrcFile() { return filename_; }
+  FileSystem::Path getSrcFile() { return filename_; }
 
   ~Source() {}
 private:
   friend class SourceProject;
 
-  std::string filename_;
-  std::string objPath_;
-  std::string objFile_;
-  std::set<std::string> dependancies_;
-  std::set<std::string> headers_;
+  FileSystem::Path filename_;
+  FileSystem::Path objPath_;
+  FileSystem::Path objFile_;
+  Base::Dictionary<Base::String, FileSystem::Path> dependancies_;
+  Base::Dictionary<Base::String, FileSystem::Path> headers_;
 
-  Source(std::string filename);
+  Source(FileSystem::Path const& filename);
 };
 
 #endif

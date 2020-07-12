@@ -29,6 +29,8 @@ call :make_o libs\Base, Char
 if %errorlevel% neq 0 exit /b %errorlevel%
 call :make_o libs\Base, Exception
 if %errorlevel% neq 0 exit /b %errorlevel%
+call :make_o libs\Base, Hash
+if %errorlevel% neq 0 exit /b %errorlevel%
 call :make_o libs\Base, String
 if %errorlevel% neq 0 exit /b %errorlevel%
 

@@ -33,10 +33,11 @@ Path::Path() :
     
   }
 
-Path::Path(String path) :
+Path::Path(String const& path_arg) :
   parts_(),
   absolute_(false)
 {
+  String path = path_arg;
   if (path.contains("\\"))
     path = path.replace("\\", "/");
   auto parts = path.split("/");
@@ -68,6 +69,12 @@ Path::Path(Path const& path) :
   parts_(path.parts_),
   absolute_(path.absolute_)
 {
+}
+
+Path::Path(Path const& path, off_t index, size_t len) :
+  absolute_(path.absolute_ && index == 0)
+{
+	parts_ = path.parts_.sublist(index, len);
 }
 
 Base::String Path::toString() const
@@ -184,7 +191,7 @@ Base::String Path::operator[] (const off_t index) const
   return parts_[index];
 }
 
-bool Path::dirExists()
+bool Path::dirExists() const
 {
 #ifdef _MSC_VER
   DWORD ret;
@@ -200,7 +207,7 @@ bool Path::dirExists()
 #endif
 }
 
-bool Path::fileExists()
+bool Path::fileExists() const
 {
 #ifdef _MSC_VER
   DWORD ret;
@@ -216,7 +223,7 @@ bool Path::fileExists()
 #endif
 }
 
-void Path::remove()
+void Path::remove() const
 {
 #ifdef _MSC_VER
   if (fileExists())
@@ -228,7 +235,7 @@ void Path::remove()
 #endif
 }
 
-void Path::createDir()
+void Path::createDir() const
 {
 #ifdef _MSC_VER
   if (!dirExists())

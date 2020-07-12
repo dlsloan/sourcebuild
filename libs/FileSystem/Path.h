@@ -35,7 +35,7 @@ namespace FileSystem
   class Path : Base::Stringable {
     public:
       Path();
-      Path(Base::String path);
+      Path(Base::String const& path);
       Path(Path const& path);
 
       Path& operator+= (Path const& value);
@@ -46,14 +46,27 @@ namespace FileSystem
 
       Path operator/ (Path const& value);
       Path operator/ (Base::String const& value);
+      friend Path operator/(char const* lhs, Path const& rhs)
+      {
+	      return Path(lhs) / rhs;
+      }
 
       bool isAbsolute() const;
       size_t count() const;
 
-      bool dirExists();
-      bool fileExists();
-      void createDir();
-      void remove();
+      bool dirExists() const;
+      bool fileExists() const;
+      void createDir() const;
+      void remove() const;
+
+      Path subpath(off_t index, size_t len)
+      {
+	      return Path(*this, index, len);
+      }
+      Path subpath(off_t index)
+      {
+	      return this->subpath(index, this->count() - index);
+      }
 
       Base::String operator[] (const off_t index) const;
 
@@ -62,6 +75,8 @@ namespace FileSystem
     private:
       Base::List<Base::String> parts_;
       bool absolute_;
+
+      Path(Path const& path, off_t index, size_t len);
 
       void verifyPartName(Base::String& part) const;
   };
