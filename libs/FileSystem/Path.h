@@ -44,8 +44,11 @@ namespace FileSystem
       Path operator+ (Path const& value);
       Path operator+ (Base::String const& value);
 
+      Path operator/ (Path const& value);
+      Path operator/ (Base::String const& value);
+
       bool isAbsolute() const;
-      size_t getCount() const;
+      size_t count() const;
 
       bool dirExists();
       bool fileExists();

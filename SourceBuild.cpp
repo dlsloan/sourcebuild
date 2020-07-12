@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 #ifdef _MSC_VER
     buildArgs = "/EHsc /Zi /std:c++14 /W3";
 #else
-    buildArgs = "-g -std=c++14 -Wall";
+    buildArgs = "-g -std=c++14 -Wall -Wno-unknown-pragmas";
 #endif
     project.build(std::string(buildArgs.c_str()));
   }
@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 #ifdef _MSC_VER
     buildArgs = "/EHsc /std:c++14 /W3";
 #else
-    buildArgs = "-std=c++14 -Wall";
+    buildArgs = "-std=c++14 -Wall -Wno-unknown-pragmas";
 #endif
     project.build(std::string(buildArgs.c_str()));
   }

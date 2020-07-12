@@ -77,6 +77,21 @@ String::String(char const* inner1, size_t len1, char const* inner2, size_t len2)
   chars_[length_] = '\0';
 }
 
+String::String(char const* inner1, char const* inner2, size_t len2) :
+  chars_(nullptr),
+  length_(len2),
+  size_(len2 + 1)
+{
+  size_t len1 = strlen(inner1);
+  length_ += len1;
+  size_ += len1;
+  chars_ = new char[size_];
+  if (inner1 != nullptr)
+    memcpy(chars_, inner1, len1);
+  memcpy(chars_ + len1, inner2, len2);
+  chars_[length_] = '\0';
+}
+
 String String::substring(off_t index) const
 {
   assert(index <= (ssize_t)length_);
@@ -240,6 +255,33 @@ bool String::startsWith(String const& value) const
   for (off_t i = 0; i < (ssize_t)value.length_; ++i)
   {
     if (chars_[i] != value.chars_[i])
+      return false;
+  }
+  return true;
+}
+
+bool String::endsWith(char const* value) const
+{
+  ssize_t len = strlen(value);
+  if (len > (ssize_t)length_)
+    return false;
+  off_t start = length_ - len;
+  for (off_t i = start; i < (ssize_t)length_; ++i)
+  {
+    if (chars_[i] != value[i - start])
+      return false;
+  }
+  return true;
+}
+
+bool String::endsWith(String const& value) const
+{
+  if (value.length_ > length_)
+    return false;
+  off_t start = length_ - value.length_;
+  for (off_t i = start; i < (ssize_t)length_; ++i)
+  {
+    if (chars_[i] != value.chars_[i - start])
       return false;
   }
   return true;

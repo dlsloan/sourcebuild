@@ -29,6 +29,8 @@ namespace Base {
       virtual ~Stringable(){}
   };
 
+  String operator+(char const* lhs, String const& rhs);
+
   class String : public Stringable {
     public:
       String();
@@ -55,6 +57,9 @@ namespace Base {
       bool startsWith(char const* value) const;
       bool startsWith(String const& value) const;
 
+      bool endsWith(char const* value) const;
+      bool endsWith(String const& value) const;
+
       size_t length() const;
       char const* c_str() const;
       void copyTo(char* charBuffer) const;
@@ -63,6 +68,10 @@ namespace Base {
       String operator+(String const& value) const;
       String operator+(char const* value) const;
       String operator+(char value) const;
+      friend String operator+(char const* lhs, String const& rhs)
+      {
+	      return String(lhs, rhs.chars_, rhs.length_);
+      }
 
       String& operator+= (String const& value);
       String& operator+= (char const* value);
@@ -81,6 +90,7 @@ namespace Base {
       size_t size_;
 
       String(char const* inner1, size_t len1, char const* inner2, size_t len2);
+      String(char const* inner1, char const* inner2, size_t len2);
       String(char const* inner1, size_t len1);
 
       bool partEq(char const* inner, char const* test, size_t testLen) const;

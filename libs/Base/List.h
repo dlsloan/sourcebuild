@@ -58,7 +58,7 @@ namespace Base
 
       List<T>& operator= (List<T> const& value)
       {
-        setMinSize(value.count_);
+        minSize(value.count_);
         for (size_t i = 0; i < value.count_; ++i)
           items_[i] = value.items_[i];
         count_ = value.count_;
@@ -67,14 +67,14 @@ namespace Base
 
       void add(T const& item)
       {
-        setMinSize(count_ + 1);
+        minSize(count_ + 1);
         items_[count_++] = item;
       }
 
       void add(T const* items, size_t count = 1)
       {
         assert(items != nullptr);
-        setMinSize(count_ + count);
+        minSize(count_ + count);
         for (off_t i = 0; i < count; ++i)
           items_[i + count_] = items[i];
         count_ += count;
@@ -82,7 +82,7 @@ namespace Base
 
       void add(List<T> const& items)
       {
-        setMinSize(count_ + items.count_);
+        minSize(count_ + items.count_);
         for (off_t i = 0; i < items.count_; ++i)
           items_[i + count_] = items.items_[i];
         count_ += items.count_;
@@ -110,17 +110,17 @@ namespace Base
         return List<T>(items_ + index, length);
       }
 
-      size_t getCount() const
+      size_t count() const
       {
         return count_;
       }
 
-      size_t getSize() const
+      size_t size() const
       {
         return size_;
       }
 
-      void setSize(size_t size)
+      void size(size_t size)
       {
         assert(size >= count_);
         if (size_ == size) return;
@@ -174,7 +174,7 @@ namespace Base
       size_t count_;
       size_t size_;
 
-      void setMinSize(size_t size)
+      void minSize(size_t size)
       {
         if (items_ == nullptr)
         {

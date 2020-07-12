@@ -19,13 +19,14 @@
 #include <fstream>
 #include <iostream>
 
-#include "base/string.h"
+#include "Base/String.h"
 #include "FileSystem/Path.h"
 
 #include "parsing_helpers.h"
 
 using namespace std;
 using namespace FileSystem;
+using namespace Base;
 
 static void splitArgs(vector<string>& args, string line)
 {
@@ -75,10 +76,23 @@ Source::Source(string filename) :
         line = trim(line.substr(3, line.length() - 3));
         vector<string> args;
         splitArgs(args, line);
-        string localDir = args[0];
-        string gitRepo = args[1];
-        string branch = args[2];
-	Path gitPath(("libs/" + localDir).c_str());
+        String gitRepo(args[0].c_str());
+	String branch = "master";
+	if (args.size() > 1)
+		branch = args[1].c_str();
+
+	auto parts = gitRepo.split("/");
+	String localDir = parts[parts.count() - 1];
+	if (localDir.startsWith("lib_"))
+		localDir = localDir.substring(4);
+	if (localDir.endsWith(".git"))
+		localDir = localDir.substring(0, localDir.length() - 4);
+
+	Path libPath("libs");
+	if (!libPath.dirExists())
+	  libPath.createDir();
+	
+	Path gitPath = libPath / localDir;
 	//TODO: This needs to be multi-pass for library deps
 	int rv;
 	if (!gitPath.dirExists()) {
@@ -87,7 +101,7 @@ Source::Source(string filename) :
 	    cout << "build failed" << endl;
             exit(1);
 	  }
-	  rv = system((std::string("git -C ") + gitPath.toString().c_str() + " checkout " + branch).c_str());
+	  rv = system((String("git -C ") + gitPath.toString() + " checkout " + branch).c_str());
 	  if (rv != 0) {
 	    cout << "build failed" << endl;
             exit(1);

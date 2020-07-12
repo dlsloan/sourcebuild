@@ -40,21 +40,21 @@ Path::Path(String path) :
   if (path.contains("\\"))
     path = path.replace("\\", "/");
   auto parts = path.split("/");
-  parts_.setSize(parts.getCount());
+  parts_.size(parts.count());
   if (path.startsWith("/"))
     absolute_ = true;
-  for (size_t i = 0; i < parts.getCount(); ++i)
+  for (size_t i = 0; i < parts.count(); ++i)
   {
     if (parts[i] == "" || parts[i] == ".")
       continue;
     else if (parts[i] == "..")
     {
-      if (parts_.getCount() == 0 && isAbsolute())
+      if (parts_.count() == 0 && isAbsolute())
         throw PathException("cannot backtrack past root");
-      else if (parts_.getCount() == 0 || parts_[parts_.getCount() - 1] == "..")
+      else if (parts_.count() == 0 || parts_[parts_.count() - 1] == "..")
         parts_ += "..";
       else
-        parts_.remove(parts_.getCount() - 1);
+        parts_.remove(parts_.count() - 1);
     }
     else
     {
@@ -76,7 +76,7 @@ Base::String Path::toString() const
 #ifdef _MSC_VER
   if (isAbsolute())
     ret += parts_[0] + ":\\";
-  for (size_t i = isAbsolute() ? 1 : 0; i < parts_.getCount(); ++i)
+  for (size_t i = isAbsolute() ? 1 : 0; i < parts_.count(); ++i)
   {
     if (i != (isAbsolute() ? 1 : 0))
       ret += "\\";
@@ -85,7 +85,7 @@ Base::String Path::toString() const
 #else
   if (isAbsolute())
     ret += "/";
-  for (size_t i = 0; i < parts_.getCount(); ++i)
+  for (size_t i = 0; i < parts_.count(); ++i)
   {
     if (i != 0)
       ret += "/";
@@ -107,9 +107,9 @@ void Path::verifyPartName(Base::String& part) const
   }
 }
 
-size_t Path::getCount() const
+size_t Path::count() const
 {
-  return parts_.getCount();
+  return parts_.count();
 }
 
 bool Path::isAbsolute() const
@@ -121,16 +121,16 @@ Path& Path::operator+= (Path const& value)
 {
   if (value.isAbsolute())
     throw PathException("Cannot append absolute path to end of path");
-  for (size_t i = 0; i < value.parts_.getCount(); ++i)
+  for (size_t i = 0; i < value.parts_.count(); ++i)
   {
     if (value.parts_[i] == "..")
     {
-      if (parts_.getCount() == 0 && isAbsolute())
+      if (parts_.count() == 0 && isAbsolute())
         throw PathException("cannot backtrack past root");
-      else if (parts_.getCount() == 0 || parts_[parts_.getCount() - 1] == "..")
+      else if (parts_.count() == 0 || parts_[parts_.count() - 1] == "..")
         parts_ += "..";
       else
-        parts_.remove(parts_.getCount() - 1);
+        parts_.remove(parts_.count() - 1);
     }
     else
     {
@@ -143,10 +143,10 @@ Path& Path::operator+= (Path const& value)
 Path& Path::operator+= (Base::String const& value)
 {
   Path path(String("./") + value);
-  if (path.parts_.getCount() > 0 && path.parts_[0] != ".." && 
-    parts_.getCount() > 0 && parts_[parts_.getCount() - 1] != "..")
+  if (path.parts_.count() > 0 && path.parts_[0] != ".." && 
+    parts_.count() > 0 && parts_[parts_.count() - 1] != "..")
   {
-    parts_[parts_.getCount() - 1] += path.parts_[0];
+    parts_[parts_.count() - 1] += path.parts_[0];
     path.parts_.remove(0);
   }
   *this += path;
@@ -164,6 +164,18 @@ Path Path::operator+ (Base::String const& value)
 {
   Path ret(*this);
   ret += value;
+  return ret;
+}
+
+Path Path::operator/ (Path const& value) {
+  Path ret(*this);
+  ret += value;
+  return ret;
+}
+
+Path Path::operator/ (Base::String const& value) {
+  Path ret(*this);
+  ret += Path(value);
   return ret;
 }
 
