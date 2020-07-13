@@ -225,7 +225,7 @@ String String::trim()
     }
   }
   off_t rhs = 0;
-  for (off_t i = length_; i > 0; i--) {
+  for (off_t i = length_ - 1; i >= 0; i--) {
     if (!Char::isWhitespace((*this)[i])) {
       rhs = i;
       break;
@@ -552,8 +552,8 @@ char String::operator[] (const off_t index) const
 {
   assert(index < (ssize_t)length_);
   assert(index >= -(ssize_t)length_);
-  if (length_ < 0)
-    return chars_[length_ - index - 1];
+  if (index < 0)
+    return chars_[length_ + index];
   else
     return chars_[index];
 }

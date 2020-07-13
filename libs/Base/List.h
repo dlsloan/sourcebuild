@@ -135,7 +135,11 @@ namespace Base
       T& operator[] (off_t index) const
       {
         assert(index < (ssize_t)count_);
-        return items_[index];
+	assert(index >= -(ssize_t)count_);
+	if (index < 0)
+	  return items_[count_ + index];
+	else
+          return items_[index];
       }
 
       List<T> operator+(List<T> const& value) const
