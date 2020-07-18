@@ -4,3 +4,6 @@
 [submodule "libs/IO"]
 	path = libs/IO
 	url = git@github.com:dlsloan/lib_IO.git
+[submodule "libs/FileSystem"]
+	path = libs/FileSystem
+	url = git@github.com:dlsloan/lib_FileSystem.git
