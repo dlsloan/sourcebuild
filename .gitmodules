@@ -1,3 +1,6 @@
 [submodule "libs/Base"]
 	path = libs/Base
 	url = git@github.com:dlsloan/lib_Base.git
+[submodule "libs/IO"]
+	path = libs/IO
+	url = git@github.com:dlsloan/lib_IO.git
