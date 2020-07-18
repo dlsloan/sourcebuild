@@ -17,7 +17,11 @@
 #ifndef __SourceProject_h
 #define __SourceProject_h
 
+#include "Source.h"
+#include "SourceHeader.h"
+
 #include "Base/Dictionary.h"
+#include "Base/Queue.h"
 #include "FileSystem/Path.h"
 
 #include <map>
@@ -27,35 +31,41 @@
 #include <queue>
 #include <sys/stat.h>
 
-#include "Source.h"
-#include "SourceHeader.h"
-
 class Source;
 class SourceHeader;
 
 class SourceProject {
 public:
-  SourceProject(std::string fileMain);
+  SourceProject(Base::String fileMain);
   SourceProject(const SourceProject&);  
   SourceProject& operator=(const SourceProject&); 
   ~SourceProject();
 
-  void build(std::string buildArgs);
+  void build(Base::String buildArgs);
   void clean();
+  Base::Dictionary<Base::String, std::unique_ptr<Source>> const& srcDeps() const
+  {
+    return sources_;
+  }
+
+  Base::Dictionary<Base::String, std::unique_ptr<SourceHeader>> const& hdrDeps()
+  {
+    return headers_;
+  }
 
 private:
-  std::string fileMain_;
-  std::map<std::string, std::unique_ptr<Source>> sources_;
-  std::map<std::string, std::unique_ptr<SourceHeader>> headers_;
+  FileSystem::Path fileMain_;
+  Base::Dictionary<Base::String, std::unique_ptr<Source>> sources_;
+  Base::Dictionary<Base::String, std::unique_ptr<SourceHeader>> headers_;
 
-  bool tryAddHeader(std::string name, std::queue<SourceHeader*>& h2Parse, std::queue<Source*>& c2Parse);
+  bool tryAddHeader(FileSystem::Path name, Base::Queue<SourceHeader*>& h2Parse, Base::Queue<Source*>& c2Parse);
 
   void addDeps(Base::Dictionary<Base::String, FileSystem::Path>& deps, Base::Dictionary<Base::String, FileSystem::Path> const& headers);
 
-  void buildObj(Source* src, std::string buildArgs);
+  void buildObj(Source* src, Base::String buildArgs);
 
-  bool containsHeader(std::string name);
-  bool containsSource(std::string name);
+  bool containsHeader(Base::String name);
+  bool containsSource(Base::String name);
 };
 
 #endif

@@ -54,6 +54,8 @@ namespace FileSystem
       bool isAbsolute() const;
       size_t count() const;
 
+      Path trimExt() const;
+
       bool dirExists() const;
       bool fileExists() const;
       void createDir() const;

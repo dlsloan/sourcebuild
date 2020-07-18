@@ -17,10 +17,11 @@
 #ifndef __SourceHeader_h
 #define __SourceHeader_h
 
-#include <map>
-#include <sys/stat.h>
-
 #include "SourceProject.h"
+
+#include "Base/Dictionary.h"
+
+#include <sys/stat.h>
 
 class SourceProject;
 
@@ -35,10 +36,10 @@ public:
 private:
   friend class SourceProject;
 
-  std::set<std::string> headers_;
-  std::string filename_;
+  Base::Dictionary<Base::String, FileSystem::Path> headers_;
+  FileSystem::Path filename_;
 
-  SourceHeader(std::string header);
+  SourceHeader(FileSystem::Path header);
 };
 
 #endif//SourceHeader

@@ -49,14 +49,20 @@ int main(int argc, char** argv)
   }
   SourceProject project(targetSource.toString().c_str());
   String buildArgs;
-  if (argc > 2 && string(argv[2]) == "debug")
-  {
+  if (argc > 2 && string(argv[2]) == "deps") {
+    for (auto iter = project.srcDeps().iter(); iter.valid(); iter.next()) {
+      sout.writeLine("Src: " + iter.value().key);
+    }
+    for (auto iter = project.hdrDeps().iter(); iter.valid(); iter.next()) {
+      sout.writeLine("Hdr: " + iter.value().key);
+    }
+  } else if (argc > 2 && string(argv[2]) == "debug") {
 #ifdef _MSC_VER
     buildArgs = "/EHsc /Zi /std:c++14 /W3";
 #else
     buildArgs = "-g -std=c++14 -Wall -Wno-unknown-pragmas";
 #endif
-    project.build(std::string(buildArgs.c_str()));
+    project.build(buildArgs);
   }
   else if (argc > 2 && string(argv[2]) == "clean")
   {
@@ -69,7 +75,7 @@ int main(int argc, char** argv)
 #else
     buildArgs = "-std=c++14 -Wall -Wno-unknown-pragmas";
 #endif
-    project.build(std::string(buildArgs.c_str()));
+    project.build(buildArgs);
   }
   return 0;
 }

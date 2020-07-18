@@ -16,7 +16,7 @@
 
 #include "parsing_helpers.h"
 
-#include "Base/adhoc_stdint.h"
+#include "Base/compat/stdint.h"
 
 #include <algorithm>
 #include <assert.h>

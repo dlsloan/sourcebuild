@@ -14,8 +14,7 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Base/adhoc_sizes.h"
-#include "Base/adhoc_unistd.h"
+#include "Base/compat/sizes.h"
 #include "FileSystem/FileStream.h"
 #include "IO/StreamException.h"
 
@@ -24,6 +23,10 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <assert.h>
+
+#ifndef _MSC_VER
+#include <unistd.h>
+#endif
 
 using namespace IO;
 using namespace FileSystem;

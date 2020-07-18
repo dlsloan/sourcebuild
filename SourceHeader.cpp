@@ -26,36 +26,38 @@
 
 using namespace std;
 using namespace Base;
+using namespace FileSystem;
 
-SourceHeader::SourceHeader(string filename) :
+SourceHeader::SourceHeader(FileSystem::Path filename) :
   filename_(filename)
 {
-  cout << "scanning: " << filename << endl;
-  if (!fileExists(filename))
-    filename = "libs/" + filename;
-  if (!fileExists(filename))
+  cout << "scanning: " << filename.toString().c_str() << endl;
+  if (!filename.fileExists())
+    filename = "libs" / filename;
+  if (!filename.fileExists())
   {
-    cout << "ERROR: could not find file \"" << filename << endl;
-    assert(fileExists(filename));
+    cout << "ERROR: could not find file \"" << filename.toString().c_str() << endl;
+    assert(filename.fileExists());
   }
-  ifstream stream(filename.c_str(), ifstream::in);
+  ifstream stream(filename.toString().c_str(), ifstream::in);
   while (!stream.eof())
   {
-    string line;
-    getline(stream, line);
-    if (!isQuoteInclude(String(line.c_str())))
+    string line_str;
+    getline(stream, line_str);
+    String line(line_str.c_str());
+    if (!isQuoteInclude(line))
       continue;
-    string file = getIncludeFile(String(line.c_str())).toString().c_str();
-    if (headers_.find(file) != headers_.end())
+    String file = getIncludeFile(line);
+    if (headers_.containsKey(file))
       continue;
-    headers_.insert(file);
+    headers_.add(file, Path(file));
   }
 }
 
 bool SourceHeader::getHTime(time_t& time)
 {
     struct stat f_stat;
-    if (stat(filename_.c_str(), &f_stat) != 0)
+    if (stat(filename_.toString().c_str(), &f_stat) != 0)
       return false;
     time = f_stat.st_mtime;
     return true;

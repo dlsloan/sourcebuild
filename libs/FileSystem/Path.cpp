@@ -15,13 +15,16 @@
  */
 
 #include "FileSystem/Path.h"
+#include "Base/Char.h"
+
 #include <assert.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "Base/adhoc_unistd.h"
-#include "Base/Char.h"
+#ifndef _MSC_VER
+#include <unistd.h>
+#endif
 
 using namespace Base;
 using namespace FileSystem;
@@ -122,6 +125,16 @@ size_t Path::count() const
 bool Path::isAbsolute() const
 {
   return absolute_;
+}
+
+Path Path::trimExt() const
+{
+  Path ret(*this);
+  if (ret.count() == 0)
+    return ret;
+  if (ret.parts_[-1].contains("."))
+    ret.parts_[-1] = ret.parts_[-1].substring(0, ret.parts_[-1].indexOfR("."));
+  return ret;
 }
 
 Path& Path::operator+= (Path const& value)
