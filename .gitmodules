@@ -1,0 +1,3 @@
+[submodule "libs/Base"]
+	path = libs/Base
+	url = git@github.com:dlsloan/lib_Base.git
