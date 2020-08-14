@@ -7,3 +7,6 @@
 [submodule "libs/FileSystem"]
 	path = libs/FileSystem
 	url = git@github.com:dlsloan/lib_FileSystem.git
+[submodule "libs/UT"]
+	path = libs/UT
+	url = git@github.com:dlsloan/lib_UT.git

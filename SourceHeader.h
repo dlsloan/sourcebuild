@@ -17,9 +17,10 @@
 #ifndef __SourceHeader_h
 #define __SourceHeader_h
 
-#include "SourceProject.h"
-
 #include "Base/Dictionary.h"
+#include "Base/String.h"
+#include "FileSystem/Path.h"
+#include "GitRepo.h"
 
 #include <sys/stat.h>
 
@@ -27,19 +28,24 @@ class SourceProject;
 
 class SourceHeader {
 public:
-  SourceHeader(const SourceHeader&);  
-  SourceHeader& operator=(const SourceHeader&); 
+  SourceHeader() {}
+  SourceHeader(Base::String header);
 
   bool getHTime(time_t& time);
+
+  FileSystem::Path const& src() const { return source_; }
+  FileSystem::Path const& file() const { return filename_; }
+  Base::Dictionary<Base::String, FileSystem::Path> const& hdrDeps() const { return headers_; }
+  Base::List<GitRepo> const& repos() const { return repos_; }
 
   ~SourceHeader() {}
 private:
   friend class SourceProject;
 
-  Base::Dictionary<Base::String, FileSystem::Path> headers_;
+  FileSystem::Path source_;
   FileSystem::Path filename_;
-
-  SourceHeader(FileSystem::Path header);
+  Base::List<GitRepo> repos_;
+  Base::Dictionary<Base::String, FileSystem::Path> headers_;
 };
 
 #endif//SourceHeader

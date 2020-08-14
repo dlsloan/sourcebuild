@@ -36,36 +36,35 @@ class SourceHeader;
 
 class SourceProject {
 public:
-  SourceProject(Base::String fileMain);
+  SourceProject(FileSystem::Path fileMain);
   SourceProject(const SourceProject&);  
   SourceProject& operator=(const SourceProject&); 
   ~SourceProject();
 
   void build(Base::String buildArgs);
   void clean();
-  Base::Dictionary<Base::String, std::unique_ptr<Source>> const& srcDeps() const
-  {
-    return sources_;
-  }
-
-  Base::Dictionary<Base::String, std::unique_ptr<SourceHeader>> const& hdrDeps()
-  {
-    return headers_;
+  Base::Dictionary<FileSystem::Path, Source> const& srcDeps() const { return sources_; }
+  Base::Dictionary<Base::String, SourceHeader> const& hdrDeps() const { return headers_; }
+  Base::Dictionary<FileSystem::Path, GitRepo> const& repos() const { return repos_; }
+  Source const& main() const { return main_; }
+  FileSystem::Path targetFile() {
+    FileSystem::Path targ = fileMain_.trimExt();
+#ifdef _MSC_VER
+    targ += ".exe";
+#endif
+    return targ;
   }
 
 private:
+  Source main_;
   FileSystem::Path fileMain_;
-  Base::Dictionary<Base::String, std::unique_ptr<Source>> sources_;
-  Base::Dictionary<Base::String, std::unique_ptr<SourceHeader>> headers_;
+  Base::Dictionary<FileSystem::Path, Source> sources_;
+  Base::Dictionary<Base::String, SourceHeader> headers_;
+  Base::Dictionary<FileSystem::Path, GitRepo> repos_;
 
-  bool tryAddHeader(FileSystem::Path name, Base::Queue<SourceHeader*>& h2Parse, Base::Queue<Source*>& c2Parse);
-
-  void addDeps(Base::Dictionary<Base::String, FileSystem::Path>& deps, Base::Dictionary<Base::String, FileSystem::Path> const& headers);
-
-  void buildObj(Source* src, Base::String buildArgs);
-
-  bool containsHeader(Base::String name);
-  bool containsSource(Base::String name);
+  void buildObj(Source src, Base::String buildArgs);
+  void scanDeps(Source const &src, Base::Queue<Source>& c2Parse, Base::Queue<SourceHeader>& h2Parse);
+  void scanDeps(SourceHeader const &hdr, Base::Queue<Source>& c2Parse, Base::Queue<SourceHeader>& h2Parse);
 };
 
 #endif

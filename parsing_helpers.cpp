@@ -23,6 +23,8 @@
 #include <fstream>
 #include <sys/stat.h>
 
+#include <iostream>
+
 using namespace std;
 using namespace Base;
 

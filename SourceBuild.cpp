@@ -30,6 +30,16 @@ using namespace Base;
 using namespace FileSystem;
 using namespace IO;
 
+#ifdef _MSC_VER
+const String buildArgs = "/EHsc /std:c++14 /W3";
+const String dbgBuildArgs = "/EHsc /Zi /std:c++14 /W3";
+#else
+const String buildArgs = "-std=c++14 -Wall -Wno-unknown-pragmas";
+const String dbgBuildArgs = "-g -std=c++14 -Wall -Wno-unknown-pragmas";
+#endif
+
+void printDeps(const Source& source, Dictionary<Path, bool>& touched);
+void printDeps(const SourceHeader& source, Dictionary<Path, bool>& touched);
 
 int main(int argc, char** argv)
 {
@@ -44,25 +54,20 @@ int main(int argc, char** argv)
     {
       sout.writeLine(String("source file: ") + targetSource.toString() + " not found");
     }
-    sout.writeLine("usage: {main_source}.cpp [(*)release|debug|clear]");
+    sout.writeLine("usage: {main_source}.cpp [(*)release|debug|clear|run]");
     return 0;
   }
-  SourceProject project(targetSource.toString().c_str());
-  String buildArgs;
+  SourceProject project(targetSource);
   if (argc > 2 && string(argv[2]) == "deps") {
-    for (auto iter = project.srcDeps().iter(); iter.valid(); iter.next()) {
-      sout.writeLine("Src: " + iter.value().key);
-    }
-    for (auto iter = project.hdrDeps().iter(); iter.valid(); iter.next()) {
-      sout.writeLine("Hdr: " + iter.value().key);
-    }
+    sout.writeLine("Src: " + project.main().srcFile().toString());
+    for (auto iter = project.srcDeps().iter(); iter.valid(); iter.next())
+      sout.writeLine("Src: " + iter.value().key.toString());
+    for (auto iter = project.hdrDeps().iter(); iter.valid(); iter.next())
+      sout.writeLine("Hdr: " + iter.value().value.file().toString());
+    for (auto iter = project.repos().iter(); iter.valid(); iter.next())
+      sout.writeLine("Repo: " + iter.value().key.toString() + " " + iter.value().value.url());
   } else if (argc > 2 && string(argv[2]) == "debug") {
-#ifdef _MSC_VER
-    buildArgs = "/EHsc /Zi /std:c++14 /W3";
-#else
-    buildArgs = "-g -std=c++14 -Wall -Wno-unknown-pragmas";
-#endif
-    project.build(buildArgs);
+    project.build(dbgBuildArgs);
   }
   else if (argc > 2 && string(argv[2]) == "clean")
   {
@@ -70,13 +75,23 @@ int main(int argc, char** argv)
   }
   else
   {
-#ifdef _MSC_VER
-    buildArgs = "/EHsc /std:c++14 /W3";
-#else
-    buildArgs = "-std=c++14 -Wall -Wno-unknown-pragmas";
-#endif
     project.build(buildArgs);
+    if (argc > 2 && string(argv[2]) == "run") {
+      String cmd = "./" + project.targetFile().toString();
+      sout.writeLine(cmd);
+      system(cmd.c_str());
+    }
   }
   return 0;
+}
+
+void printDeps(const Source& source, Dictionary<Path, bool>& touched)
+{
+  
+}
+
+void printDeps(const SourceHeader& source, Dictionary<Path, bool>& touched)
+{
+  
 }
 

@@ -24,7 +24,7 @@
 #include "Base/String.h"
 #include "FileSystem/Path.h"
 #include "Base/Dictionary.h"
-#include "SourceProject.h"
+#include "GitRepo.h"
 #include "SourceHeader.h"
 
 class SourceProject;
@@ -32,29 +32,27 @@ class SourceHeader;
 
 class Source {
 public:
-  Source(const Source&);
-  Source& operator=(const Source&); 
+  Source() {}
+  Source(FileSystem::Path const& file);
 
-  bool getObjTime(time_t& time);
-  bool getCppTime(time_t& time);
+  bool objTime(time_t& time);
+  bool cppTime(time_t& time);
 
-  FileSystem::Path getObjFile() { return objFile_; }
-  
-  FileSystem::Path getObjPath() { return objPath_; }
-
-  FileSystem::Path getSrcFile() { return filename_; }
+  FileSystem::Path objFile() const { return objFile_; }
+  FileSystem::Path objPath() const { return objPath_; }
+  FileSystem::Path srcFile() const { return file_; }
+  const Base::Dictionary<Base::String, FileSystem::Path>& hdrDeps() const { return headers_; }
+  Base::List<GitRepo> const& repos() const { return repos_; }
 
   ~Source() {}
 private:
   friend class SourceProject;
 
-  FileSystem::Path filename_;
+  FileSystem::Path file_;
   FileSystem::Path objPath_;
   FileSystem::Path objFile_;
-  Base::Dictionary<Base::String, FileSystem::Path> dependancies_;
   Base::Dictionary<Base::String, FileSystem::Path> headers_;
-
-  Source(FileSystem::Path const& filename);
+  Base::List<GitRepo> repos_;
 };
 
 #endif

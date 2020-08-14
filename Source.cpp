@@ -25,99 +25,47 @@ using namespace std;
 using namespace FileSystem;
 using namespace Base;
 
-static void splitArgs(List<String>& args, String line)
-{
-  line = line.trim();
-  while(line.length() > 0)
-  {
-    int index = line.indexOf(" ");
-    String val;
-    if (index == -1) val = line;
-    else val = line.substring(0, index);
-    args.add(val);
-    line = line.substring(val.length()).trim();
-  }
-}
-
-Source::Source(Path const& filename_arg) :
-  filename_(filename_arg),
+Source::Source(Path const& file) :
   objPath_(""),
   objFile_("")
 {
-  Path filename = filename_arg;
-  cout << "scanning: " << filename.toString().c_str() << endl;
-  if (!filename.fileExists())
-    filename = "libs" / filename;
-  if (!filename.fileExists())
+  Path filepath = file;
+  cout << "scanning: " << file.toString().c_str() << endl;
+  if (!filepath.fileExists())
   {
-    cout << "ERROR: could not find file \"" << filename.toString().c_str() << endl;
-    assert(filename.fileExists());
+    cout << "ERROR: could not find file \"" << file.toString().c_str() << endl;
+    assert(filepath.fileExists());
   }
-  ifstream stream(filename.toString().c_str(), ifstream::in);
+  file_ = filepath;
+  ifstream stream(filepath.toString().c_str(), ifstream::in);
   while (!stream.eof())
   {
     string line_str;
     getline(stream, line_str);
     String line(line_str.c_str());
     line = line.trim();
-    if (isQuoteInclude(line))
-    {
-      String file = getIncludeFile(line);
-      if (headers_.containsKey(file))
+    if (isQuoteInclude(line)) {
+      String incFile = getIncludeFile(line);
+      Path incPath(incFile);
+      if (!incPath.fileExists())
+        incPath = "libs" / incPath;
+      if (headers_.containsKey(incFile))
         continue;
-      headers_.add(file, Path(file));
-    }
-    else if (line.startsWith("#pragma"))
-    {
-      line = line.substring(7, line.length() - 7).trim();
+      headers_.add(incFile, incPath);
+    } else if (line.startsWith("#pragma")) {
+      line = line.substring(7).trim();
       if (line.startsWith("git"))
       {
-        line = line.substring(3, line.length() - 3).trim();
-        List<String> args;
-        splitArgs(args, line);
-        String gitRepo(args[0].c_str());
-	String branch = "master";
-	if (args.size() > 1)
-		branch = args[1].c_str();
-
-	auto parts = gitRepo.split("/");
-	String localDir = parts[parts.count() - 1];
-	if (localDir.startsWith("lib_"))
-		localDir = localDir.substring(4);
-	if (localDir.endsWith(".git"))
-		localDir = localDir.substring(0, localDir.length() - 4);
-
-	Path libPath("libs");
-	if (!libPath.dirExists())
-	  libPath.createDir();
-	
-	Path gitPath = libPath / localDir;
-	//TODO: This needs to be multi-pass for library deps
-	int rv;
-	if (!gitPath.dirExists()) {
-          rv = system(("git clone " + gitRepo + " " + gitPath.toString().c_str()).c_str());
-	  if (rv != 0) {
-	    cout << "build failed" << endl;
-            exit(1);
-	  }
-	  rv = system((String("git -C ") + gitPath.toString() + " checkout " + branch).c_str());
-	  if (rv != 0) {
-	    cout << "build failed" << endl;
-            exit(1);
-	  }
-	}
-	rv = system((std::string("git -C ") + gitPath.toString().c_str() + " pull").c_str());
-	if (rv != 0) {
-	  cout << "build failed" << endl;
-	  exit(1);
-	}
+        line = line.substring(3).trim();
+        GitRepo repo(line);
+        repos_.add(repo);
       }
     }
   }
-  if (filename.count() == 1)
+  if (file_.length() == 1)
   {
     objPath_ = Path(".obj");
-    objFile_ = objPath_ / (filename + 
+    objFile_ = objPath_ / (file_ + 
 #ifdef _MSC_VER
       ".obj");
 #else
@@ -126,8 +74,8 @@ Source::Source(Path const& filename_arg) :
   }
   else
   {
-    objPath_ = filename.subpath(0, filename.count() - 1) / ".obj/";
-    objFile_ = objPath_ / (filename[-1] +
+    objPath_ = file_.subpath(0, file_.length() - 1) / ".obj/";
+    objFile_ = objPath_ / (file_[-1] +
 #ifdef _MSC_VER
     ".obj");
 #else
@@ -136,19 +84,19 @@ Source::Source(Path const& filename_arg) :
   }
 }
 
-bool Source::getObjTime(time_t& time)
+bool Source::objTime(time_t& time)
 {
     struct stat f_stat;
-    if (stat(getObjFile().toString().c_str(), &f_stat) != 0)
+    if (stat(objFile_.toString().c_str(), &f_stat) != 0)
       return false;
     time = f_stat.st_mtime;
     return true;
 }
 
-bool Source::getCppTime(time_t& time)
+bool Source::cppTime(time_t& time)
 {
     struct stat f_stat;
-    if (stat(filename_.toString().c_str(), &f_stat) != 0)
+    if (stat(file_.toString().c_str(), &f_stat) != 0)
       return false;
     time = f_stat.st_mtime;
     return true;
