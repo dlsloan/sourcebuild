@@ -35,7 +35,7 @@ const String buildArgs = "/EHsc /std:c++14 /W3";
 const String dbgBuildArgs = "/EHsc /Zi /std:c++14 /W3";
 #else
 const String buildArgs = "-std=c++14 -Wall -Wno-unknown-pragmas";
-const String dbgBuildArgs = "-g -std=c++14 -Wall -Wno-unknown-pragmas";
+const String dbgBuildArgs = "-g -O0 -std=c++14 -Wall -Wno-unknown-pragmas";
 #endif
 
 void printDeps(const Source& source, Dictionary<Path, bool>& touched);
@@ -75,10 +75,10 @@ int main(int argc, char** argv)
   }
   else
   {
-    project.build(buildArgs);
+    project.build(dbgBuildArgs);
     if (argc > 2 && string(argv[2]) == "run") {
       String cmd = "./" + project.targetFile().toString();
-      sout.writeLine(cmd);
+      //sout.writeLine(cmd);
       system(cmd.c_str());
     }
   }

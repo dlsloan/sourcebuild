@@ -37,3 +37,14 @@ UT(Dictionary_Copy) {
   UT_ASSERT(dict2["1"] == "a");
   UT_ASSERT(dict2["2"] == "b");
 }
+
+UT(Dictionary_Contains) {
+  Dictionary<String, String> dict;
+  dict.add("test", "1");
+  UT_ASSERT(dict.containsKey("test"));
+  UT_ASSERT(!dict.containsKey("test2"));
+
+  dict.add("test2", "2");
+  UT_ASSERT(dict.containsKey("test"));
+  UT_ASSERT(dict.containsKey("test2"));
+}

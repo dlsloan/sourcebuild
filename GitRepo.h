@@ -18,15 +18,15 @@ class GitRepo {
     }
 
     void clone() {
-      int rv = system(("git clone " + url_ + " " + path_.toString()).c_str());
-      if (rv != 0)
-        throw Base::Exception("Error: failed to execute \"git clone " + url_ + "\"");
+      errno = ENOMSG;
+      neg_except(int, system, ("git clone " + url_ + " " + path_.toString()).c_str());
+      errno = 0;
     }
 
     void pull() {
-      int rv = system(("git -C " + path_.toString() + " pull").c_str());
-      if (rv != 0)
-        throw Base::Exception("Error: failed to execute \"git pull\" on " + path_.toString());
+      errno = ENOMSG;
+      neg_except(int, system, ("git -C " + path_.toString() + " pull").c_str());
+      errno = 0;
     }
 
     const Base::String& url() const { return url_; }
